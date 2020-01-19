@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { UserModel } from './../models/user.model';
 import { UserService } from './../services/user.service';
 
@@ -6,14 +6,18 @@ import { UserService } from './../services/user.service';
 export class UserController {
     constructor(private readonly service: UserService) { }
 
-
     @Get()
-    async get() : Promise<UserModel> {
+    get() {
         return this.service.get();
     }
 
     @Post()
-    async create(@Body() model: UserModel) {
+    create(@Body() model: UserModel) {
         return this.service.create(model);
+    }
+
+    @Post('/login')
+    login(@Body() model: UserModel) {
+        return this.service.login(model);
     }
 }
