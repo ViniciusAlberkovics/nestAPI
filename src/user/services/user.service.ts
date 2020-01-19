@@ -1,3 +1,4 @@
+import { Config } from './../../config';
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -10,8 +11,6 @@ import * as fs from 'fs';
 @Injectable()
 export class UserService {
     constructor(@InjectModel('user') private readonly model: Model<UserModel>) { }
-
-    private basePath = __dirname.substr(0, __dirname.lastIndexOf(path.sep));
 
     async get(): Promise<UserModel> {
         return await this.model.findOne().exec();
@@ -50,7 +49,7 @@ export class UserService {
     }
 
     private async sign(paramsToken: any): Promise<string> {
-        let privateKey = fs.readFileSync(`${this.basePath}${path.sep}keys${path.sep}private.key`, 'utf8');
+        let privateKey = fs.readFileSync(`${Config.BasePath}${path.sep}keys${path.sep}private.key`, 'utf8');
         return await jwt.sign({ ...paramsToken }, privateKey, {
             expiresIn: 300,
             algorithm: 'RS256'

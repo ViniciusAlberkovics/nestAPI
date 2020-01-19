@@ -1,3 +1,4 @@
+import { Config } from './../config';
 import { Injectable, CanActivate, ExecutionContext, HttpException, HttpStatus, } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import * as jwt from 'jsonwebtoken';
@@ -6,8 +7,6 @@ import * as fs from 'fs';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-    private readonly basePath = __dirname.substr(0, __dirname.lastIndexOf(path.sep));
-
     constructor(private readonly reflector: Reflector) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -37,14 +36,14 @@ export class AuthGuard implements CanActivate {
         const token = auth.split(' ')[1];
 
         try {
-            let publicKey = fs.readFileSync(`${this.basePath}${path.sep}keys${path.sep}public.key`, 'utf8');
+            let publicKey = fs.readFileSync(`${Config.BasePath}${path.sep}keys${path.sep}public.key`, 'utf8');
             const decoded: any = await jwt.verify(token, publicKey, { algorithms: 'RS256' });
             return decoded;
         } catch (err) {
             if (err.name === 'TokenExpiredError')
                 throw new HttpException({ message: 'Expired token.' }, HttpStatus.UNAUTHORIZED);
             else
-                throw new HttpException({ message: 'Failed to authenticate token.' }, HttpStatus.INTERNAL_SERVER_ERROR);
+                throw new HttpException({ message: 'Failed to authenticate token.', err }, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
